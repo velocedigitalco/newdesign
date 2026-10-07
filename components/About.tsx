@@ -1,0 +1,152 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+function Counter({
+  end,
+  suffix = "",
+  duration = 2000,
+}: {
+  end: number;
+  suffix?: string;
+  duration?: number;
+}) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    let animationFrame: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+      setCount(Math.floor(easedProgress * end));
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setCount(end);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end, duration]);
+
+  return (
+    <>
+      {`${count}${suffix}`}
+    </>
+  );
+}
+
+/*
+  Sizes use Tailwind's spacing scale, which is set in globals.css so that
+  1 unit = 1 Figma px (1920 frame). Example: `left-111` = 111px in Figma.
+  Font sizes use calc(N * var(--spacing)) for the same reason.
+  `max-[820px]:` classes are the stacked mobile layout.
+*/
+export default function About() {
+  return (
+    <section
+      className="relative h-1108 w-full overflow-hidden bg-black text-white max-[820px]:flex max-[820px]:h-auto max-[820px]:flex-col max-[820px]:gap-28 max-[820px]:px-20 max-[820px]:pt-32 max-[820px]:pb-48"
+    >
+      <h1 className="absolute top-140 left-111 w-982 text-[calc(80*var(--spacing))] leading-[1.12] font-medium tracking-[-0.04em] max-[820px]:static max-[820px]:w-auto max-[820px]:pr-70 max-[820px]:text-[calc(40*var(--spacing))]">
+        Design solutions for startups and growing brands.
+      </h1>
+
+      <video
+        className="pointer-events-none absolute top-60 left-1540 h-300 w-300 object-cover max-[820px]:top-10 max-[820px]:-right-30 max-[820px]:left-auto max-[820px]:h-150 max-[820px]:w-150"
+        src="/videos/logo.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden="true"
+      />
+
+      <div className="absolute top-480 left-111 h-464 w-560 max-[820px]:relative max-[820px]:top-0 max-[820px]:left-0 max-[820px]:h-260 max-[820px]:w-full">
+        <Image
+          src="/images/head.jpg"
+          alt="Silhouette of a head lit by red light"
+          fill
+          sizes="(max-width: 820px) 100vw, 30vw"
+          priority
+          className="object-cover object-[center_20%]"
+        />
+      </div>
+
+      <div className="absolute top-478 left-839 flex h-247 w-972 flex-col items-start gap-48 max-[820px]:static max-[820px]:h-auto max-[820px]:w-auto max-[820px]:gap-24">
+        <p className="text-[calc(26*var(--spacing))] leading-[1.85] font-normal max-[820px]:text-[calc(16*var(--spacing))]">
+          At Max Design, we turn ideas into powerful visual experiences. With
+          strategy, creativity, and innovation, we create brands that connect,
+          stand out, and leave a lasting impression.
+        </p>
+
+        {/* More About Us */}
+        <a
+          href="#about"
+          className="box-border inline-flex h-56 w-197 shrink-0 items-center rounded-[calc(76.8*var(--spacing))] border-[0.57px] border-white/35 px-[calc(14.9*var(--spacing))] py-[calc(3.44*var(--spacing))] text-[calc(17*var(--spacing))] text-white transition-colors hover:border-[#ff1e2d] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#ff1e2d] max-[820px]:h-48 max-[820px]:w-170 max-[820px]:text-[calc(14*var(--spacing))]"
+        >
+          {/* Left red dot */}
+          <i className="h-7 w-7 shrink-0 rounded-full bg-[#ff1e2d] max-[820px]:h-6 max-[820px]:w-6" />
+
+          {/* Text */}
+          <span className="ml-[calc(9.17*var(--spacing))] shrink-0 whitespace-nowrap">
+            More About Us
+          </span>
+
+          {/* Arrow */}
+          <b className="ml-auto grid h-[calc(38*var(--spacing))] w-[calc(38*var(--spacing))] shrink-0 place-items-center rounded-[calc(19*var(--spacing))] bg-[#ff1e2d]">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-[55%] w-[55%]"
+            >
+              <path d="M7 17 17 7M8 7h9v9" />
+            </svg>
+          </b>
+        </a>
+      </div>
+
+      <div className="absolute top-806 left-839 flex gap-48 max-[820px]:static max-[820px]:gap-22">
+        <div>
+          <strong className="block text-[calc(72*var(--spacing))] leading-[1.1] font-medium max-[820px]:text-[calc(34*var(--spacing))]">
+            <Counter end={30} suffix="+" />
+          </strong>
+          <span className="mt-8 block text-[calc(18*var(--spacing))] whitespace-nowrap max-[820px]:text-[calc(11*var(--spacing))]">
+            Successful Brands
+          </span>
+        </div>
+
+        <div>
+          <strong className="block text-[calc(72*var(--spacing))] leading-[1.1] font-medium max-[820px]:text-[calc(34*var(--spacing))]">
+            <Counter end={5} suffix="K+" />
+          </strong>
+          <span className="mt-8 block text-[calc(18*var(--spacing))] whitespace-nowrap max-[820px]:text-[calc(11*var(--spacing))]">
+            Social Media Campaigns
+          </span>
+        </div>
+
+        <div>
+          <strong className="block text-[calc(72*var(--spacing))] leading-[1.1] font-medium max-[820px]:text-[calc(34*var(--spacing))]">
+            <Counter end={100} suffix="+" />
+          </strong>
+          <span className="mt-8 block text-[calc(18*var(--spacing))] whitespace-nowrap max-[820px]:text-[calc(11*var(--spacing))]">
+            Happy Clients
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}

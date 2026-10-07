@@ -1,3 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --spacing: calc(100vw / 1920);
+}
+
+@media (max-width: 820px) {
+  :root {
+    --spacing: calc(100vw / 390);
+  }
+}
+
 :root {
   --color-ink: #111111;
   --color-accent: #e71117;
