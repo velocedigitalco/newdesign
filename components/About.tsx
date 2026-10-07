@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Counter({
   end,
@@ -13,36 +13,65 @@ function Counter({
   duration?: number;
 }) {
   const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    let startTime: number | null = null;
-    let animationFrame: number;
+    const el = ref.current;
+    if (!el) return;
 
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(end);
+      return;
+    }
 
-      const progress = Math.min((timestamp - startTime) / duration, 1);
+    let animationFrame = 0;
 
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
+    const run = () => {
+      let startTime: number | null = null;
 
-      setCount(Math.floor(easedProgress * end));
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
 
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      } else {
-        setCount(end);
-      }
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+        setCount(Math.floor(easedProgress * end));
+
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(animate);
+        } else {
+          setCount(end);
+        }
+      };
+
+      animationFrame = requestAnimationFrame(animate);
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          run();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.4 },
+    );
 
-    return () => cancelAnimationFrame(animationFrame);
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animationFrame);
+    };
   }, [end, duration]);
 
   return (
-    <>
-      {`${count}${suffix}`}
-    </>
+    <span ref={ref} className="relative inline-block">
+      <span className="opacity-0">{`${end}${suffix}`}</span>
+      <span aria-hidden="true" className="absolute top-0 left-0">
+        {`${count}${suffix}`}
+      </span>
+    </span>
   );
 }
 
@@ -83,7 +112,7 @@ export default function About() {
       </div>
 
       <div className="absolute top-478 left-839 flex h-247 w-972 flex-col items-start gap-48 max-[820px]:static max-[820px]:h-auto max-[820px]:w-auto max-[820px]:gap-24">
-        <p className="text-[calc(26*var(--spacing))] leading-[1.85] font-normal max-[820px]:text-[calc(16*var(--spacing))]">
+        <p className="text-[calc(32*var(--spacing))] leading-[calc(48*var(--spacing))] font-normal tracking-[-0.04em] max-[820px]:text-[calc(16*var(--spacing))] max-[820px]:leading-[1.85] max-[820px]:tracking-normal">
           At Max Design, we turn ideas into powerful visual experiences. With
           strategy, creativity, and innovation, we create brands that connect,
           stand out, and leave a lasting impression.
